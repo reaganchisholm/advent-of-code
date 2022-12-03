@@ -62,13 +62,13 @@ def part_1():
         letters = line.split(" ")
         op_move = letters[0]
         my_move = letters[1]
-        result += determine_outcome(op_move, my_move);
+        result += determine_outcome(op_move, my_move)
     
-    print(f"Part 1 --- Score: {result}");
+    print(f"Part 1 --- Score: {result}")
 
 def part_2():
     lines = get_lines(False)
-    result = 0;
+    result = 0
 
     def determine_outcome(op_move, my_move):
         shape_value = 0
@@ -114,9 +114,9 @@ def part_2():
         letters = line.split(" ")
         op_move = letters[0]
         my_move = letters[1]
-        result += determine_outcome(op_move, my_move);
+        result += determine_outcome(op_move, my_move)
     
-    print(f"Part 2 --- Score: {result}");
+    print(f"Part 2 --- Score: {result}")
 
 part_1()
 part_2()
