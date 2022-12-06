@@ -1,5 +1,5 @@
 test_input="""    [D]    
-[N] [C] [E]   
+[N] [C]    
 [Z] [M] [P]
  1   2   3 
 
@@ -18,10 +18,6 @@ def get_lines(use_test_data):
             stack, instructions = f.read().split("\n\n")
             instructions = instructions.splitlines()
             return stack, instructions 
-
-def print_2d_array(array):
-    for row in array:
-        print(row)
 
 def get_instruction(instruction):
     amount = int(instruction.split(" ")[1])
@@ -69,8 +65,7 @@ def stack_to_array(stack):
             
     return array_stack
 
-
-def update_stack(stack, amount, start_col, end_col):
+def update_stack(stack, amount, start_col, end_col, moveAllTogether=False):
     # get amount from start_col array and remove it
     start_col_array = stack[start_col - 1]
     moved_items = start_col_array[-amount:]
@@ -78,8 +73,10 @@ def update_stack(stack, amount, start_col, end_col):
 
     # print("Adding {} to {} from {}".format(moved_items, end_col, start_col))
 
+    if(moveAllTogether == False and len(moved_items) > 1):
+        moved_items.reverse()
+
     # add amount to end_col array
-    moved_items.reverse()
     end_col_array = stack[end_col - 1]
     end_col_array.extend(moved_items)
 
@@ -88,7 +85,6 @@ def update_stack(stack, amount, start_col, end_col):
     stack[end_col - 1] = end_col_array
 
     return stack
-
 
 def part_1():
     stack, instructions = get_lines(False)
@@ -103,6 +99,22 @@ def part_1():
         if(len(s) > 0):
             top_items.append(s[-1])
 
-    print(''.join(top_items))
+    print(f"Part 1 --- {''.join(top_items)}")
+
+def part_2():
+    stack, instructions = get_lines(False)
+    stack = stack_to_array(stack)
+    top_items = []
+
+    for inst in instructions:
+        amount, start_col, end_col = get_instruction(inst)
+        stack = update_stack(stack, amount, start_col, end_col, True)
+
+    for s in stack:
+        if(len(s) > 0):
+            top_items.append(s[-1])
+
+    print(f"Part 2 --- {''.join(top_items)}")
 
 part_1()
+part_2()
