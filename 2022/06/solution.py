@@ -35,6 +35,32 @@ def part_1():
             index = i + 4
             break
     
-    print("Part 1 --- First Marker After: ", index)
+    print("Part 1 --- First Marker After:", index)
+
+def part_2():
+    line = get_line(False)
+    last_char = []
+    index = 0
+
+    for i, char in enumerate(line):
+        for x in range(i, len(line)):
+            cc = line[x]
+
+            if len(last_char) == 14:
+                # found start of message
+                break
+            if cc in last_char:
+                last_char = []
+                break
+            else:
+                last_char.append(cc)
+        if(len(last_char) == 14):
+            # found start of message
+            # print(last_char)
+            index = i + 14
+            break
+    
+    print("Part 2 --- Message Starts After:", index)
 
 part_1()
+part_2()
