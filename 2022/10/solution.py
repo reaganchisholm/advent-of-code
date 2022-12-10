@@ -1,8 +1,4 @@
-test_input = """noop
-addx 3
-addx -5"""
-
-test_input2 = """addx 15
+test_input = """addx 15
 addx -11
 addx 6
 addx -3
@@ -151,14 +147,12 @@ noop"""
 
 def get_lines(use_test_data):
     if(use_test_data):
-        lines = test_input2.splitlines()
+        lines = test_input.splitlines()
         return lines
     else :
         with open('input.txt') as f:
             lines = f.read().splitlines()
             return lines
-
-# █
 
 class Crt:
     def __init__(self):
@@ -214,9 +208,8 @@ class Cpu:
     def print_screen(self):
         self.crt.print_screen()
 
-cpu = Cpu()
-
 def part_1_and_2():
+    cpu = Cpu()
     lines = get_lines(False)
     cycles = cpu.get_cycles()
 
