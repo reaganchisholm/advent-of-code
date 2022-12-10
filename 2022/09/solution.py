@@ -68,8 +68,28 @@ def part_1():
 
     print(f"Part 1 --- Tail Touched: {len(touched_spots)}")
 
+# Needed help with this one, had a hard time wrapping my head around how the tail moved and how to handle it when there were more than 2 steps between the head and tail
+def follow(head, tail):
+    x_diff = head[0] - tail[0]
+    y_diff = head[1] - tail[1]
+    old_x, old_y = tail
+
+    if (abs(x_diff) == 2) and (abs(y_diff) == 2):
+        tail[0] += x_diff//2
+        tail[1] += y_diff//2
+    else:
+        if abs(x_diff) == 2:
+            tail[0] += x_diff//2
+            tail[1] = head[1]
+        elif abs(y_diff) == 2:
+            tail[1] += y_diff//2
+            tail[0] = head[0]
+
+    new_x, new_y = tail
+    return ((new_x != old_x) or (new_y != old_y))
+
 def part_2():
-    instructions = get_lines(True)
+    instructions = get_lines(False)
     touched_spots = {}
     head_x = 0
     head_y = 0
@@ -78,7 +98,9 @@ def part_2():
 
     # init tail
     for i in range(0, tail_length):
-        tail[i] = (0, 0)
+        tail[i] = [0, 0]
+        if(i == 8): # Add the first tail spot to the touched spots
+            touched_spots[str((0,0))] = 1
 
     for ins in instructions:
         d, a = ins.split()
@@ -94,39 +116,19 @@ def part_2():
                 head_y += 1
 
             # tail handling
-            for i in range(0, tail_length):
-                tail_x, tail_y = tail[i]
+            moved = True
 
+            for i in range(0, tail_length):
                 if(i == 0):
                     next_x, next_y = (head_x, head_y)
                 else:
                     next_x, next_y = tail[i - 1]
 
-                diff_x = abs(tail_x - next_x)
-                diff_y = abs(tail_y - next_y)
-
-                if diff_x > 1: # right
-                    tail_x += 1
-                    if(tail_y < next_y or tail_y > next_y):
-                        tail_y = next_y
-                        for j in range(i + 1, tail_length):
-                            tail[j] = (tail[j][0], tail[j - 1][1])
-                elif diff_x > 1: # left
-                    tail_x -= 1
-                    if(tail_y < next_y or tail_y > next_y):
-                        tail_y = next_y
-                elif diff_y > 1: # up
-                    tail_y -= 1
-                    if(tail_x < next_x or tail_x > next_x):
-                        tail_x = next_x
-                elif diff_y > 1: # down
-                    tail_y += 1
-                    if(tail_x < next_x or tail_x > next_x):
-                        tail_x = next_x
+                if moved:
+                    moved = follow((next_x, next_y), tail[i])
             
-                tail[i] = (tail_x, tail_y)
-
-            touched_spots[tail[8]] = 1
+            if moved:
+                touched_spots[str(tail[8])] = 1
             
     print(f"Part 2 --- Tail Touched: {len(touched_spots)}")
 
