@@ -158,25 +158,76 @@ def get_lines(use_test_data):
             lines = f.read().splitlines()
             return lines
 
-def part_1():
+# █
+
+class Crt:
+    def __init__(self):
+        self.screen = []
+        self.line = []
+
+    def draw(self, pls_draw, symbol = '#'):
+        if(pls_draw):
+            self.line.append(symbol)
+        else:
+            self.line.append('.')
+        
+        if(len(self.line) == 40):
+            self.screen.append(self.line)
+            self.line = []
+
+    def print_screen(self):
+        for p in self.screen:
+            print(''.join(p))
+
+class Cpu:
+    def __init__(self):
+        self.x = 1
+        self.current = 1
+        self.cycles = {}
+        self.crt = Crt()
+    
+    def get_cycles(self):
+        return self.cycles
+    
+    def cycle(self, amount = 1):
+        for i in range(amount):
+            if(self.current > 40):
+                num = self.current % 40 
+            else:
+                num = self.current
+
+            if(num == self.x or num == self.x + 1 or num == self.x + 2):
+                self.crt.draw(True)
+            else: 
+                self.crt.draw(False)
+
+            self.cycles[self.current] = self.x
+            self.current += 1
+    
+    def addx(self, num):
+        self.cycle(2)
+        self.x += num
+    
+    def noop(self):
+        self.cycle()
+    
+    def print_screen(self):
+        self.crt.print_screen()
+
+cpu = Cpu()
+
+def part_1_and_2():
     lines = get_lines(False)
-    cycles = {}
-    current_cycle = 1
-    x = 1
+    cycles = cpu.get_cycles()
 
     for l in lines:
         if l.startswith('addx'):
-            for i in range(0, 2):
-                cycles[current_cycle] = x
-                current_cycle += 1
-            x += int(l.split(' ')[1])
+            cpu.addx(int(l.split(' ')[1]))
         elif l.startswith('noop'):
-            current_cycle += 1
+            cpu.noop()
         else:
             raise Exception('Unknown command: ' + l)
 
-        cycles[current_cycle] = x
-    
     cycles_wanted = {20, 60, 100, 140, 180, 220}
     totals = []
 
@@ -184,5 +235,7 @@ def part_1():
         totals.append(c * cycles[c])
 
     print(f"Part 1 --- {sum(totals)}")
+    print(f"Part 2 ---------------------------------")
+    cpu.print_screen()
 
-part_1()
+part_1_and_2()

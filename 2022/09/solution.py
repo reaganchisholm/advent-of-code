@@ -102,19 +102,24 @@ def part_2():
                 else:
                     next_x, next_y = tail[i - 1]
 
-                if tail_x < (next_x - 1): # right
+                diff_x = abs(tail_x - next_x)
+                diff_y = abs(tail_y - next_y)
+
+                if diff_x > 1: # right
                     tail_x += 1
                     if(tail_y < next_y or tail_y > next_y):
                         tail_y = next_y
-                elif tail_x > (next_x + 1): # left
+                        for j in range(i + 1, tail_length):
+                            tail[j] = (tail[j][0], tail[j - 1][1])
+                elif diff_x > 1: # left
                     tail_x -= 1
                     if(tail_y < next_y or tail_y > next_y):
                         tail_y = next_y
-                elif tail_y > (next_y + 1): # up
+                elif diff_y > 1: # up
                     tail_y -= 1
                     if(tail_x < next_x or tail_x > next_x):
                         tail_x = next_x
-                elif tail_y < (next_y - 1): # down
+                elif diff_y > 1: # down
                     tail_y += 1
                     if(tail_x < next_x or tail_x > next_x):
                         tail_x = next_x
