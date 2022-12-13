@@ -1,8 +1,23 @@
+from colorama import Fore
+from colorama import Style
+
 test_input = """Sabqponm
 abcryxxl
 accszExk
 acctuvwj
 abdefghi"""
+
+def get_color(num):
+    color = Fore.WHITE
+    if(num > 15):
+        color = Fore.RED
+    elif(num > 10):
+        color = Fore.MAGENTA
+    elif(num > 5):
+        color = Fore.YELLOW
+    elif(num > 0):
+        color = Fore.GREEN
+    return color
 
 def get_lines(use_test_data):
     if(use_test_data):
@@ -14,19 +29,37 @@ def get_lines(use_test_data):
             return lines
 
 def find_shortest_path(graph, start, end):
-    start_row = graph[start[1]][start[0]]
-    end_row = graph[end[1]][end[0]]
-    queue = [(start[1], start[0])]
-    visited = set()
+    shortest_path = None
+    visited = {}
+    current = start
+    queue = [start]
+    visited[start] = None
+
     while queue:
         row, col = queue.pop(0)
-        visited.add((row, col))
-        if (row, col) == end:
-            return True
+        current = (row, col)
+
+        if((row, col) == end):
+            break
+
         for row, col in neighbors(graph, row, col, start):
             if(row, col) not in visited:
                 queue.append((row, col))
-    return visited
+                visited[(row, col)] = current
+    
+    # At this point, either the current node is the goal node
+    # or the queue is empty and the goal was not found
+
+    if current == end:
+        # Backtrack through the parent nodes to find the shortest path
+        path = []
+        while visited[current] is not None:
+            current = visited[current]
+            path.append(current)
+        path.reverse()
+        shortest_path = len(path)
+    
+    return shortest_path
 
 def neighbors(graph, row, col, start):
     current_height = graph[row][col]
@@ -35,37 +68,43 @@ def neighbors(graph, row, col, start):
     return [(row, col) for row, col in directions if is_valid_spot(graph, row, col, current_height)]
 
 def is_valid_spot(graph, row, col, current_height):
+    is_valid_height = False
+
     if(row >= 0 and row < len(graph) and col >= 0 and col < len(graph[0]) ):
         next_height = graph[row][col]
         is_valid_height = current_height + 1 == next_height or next_height <= current_height
     else:
         is_valid_height = False
+
     return is_valid_height 
 
 def part_1():
     elevation = "abcdefghijklmnopqrstuvwxyz"
-    lines = get_lines(True)
+    lines = get_lines(False)
     start = (0,0)
     end = (0,0)
-    graph = []
+    raw_graph = []
 
     for i, line in enumerate(lines):
         graph_row = []
         for j, char in  enumerate(line):
             if char == "S":
-                start = (j,i)
+                start = (i, j)
                 graph_row.append(elevation.index("a"))
             elif char == "E":
-                end = (j,i)
+                end = (i, j)
                 graph_row.append(elevation.index("z"))
             else:
                 graph_row.append(elevation.index(char))
-        graph.append(graph_row)
-    
-    for row in graph:
-        print(row)
+        raw_graph.append(graph_row)
 
-    paths = find_shortest_path(graph, start, end)
-    print(len(paths))
-    
+    # Color visualization of "map"
+    # for row in graph:
+    #     print("")
+    #     for col in row:
+    #         print(get_color(col) + str(col).zfill(2) + Style.RESET_ALL, end=" ")
+
+    shortest_path = find_shortest_path(raw_graph, start, end)
+    print(f"Part 1 --- {shortest_path}")
+
 part_1()
