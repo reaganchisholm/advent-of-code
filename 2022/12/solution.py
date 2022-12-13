@@ -33,7 +33,7 @@ def find_shortest_path(graph, start, end):
     visited = {}
     current = start
     queue = [start]
-    visited[start] = None
+    visited[start] = None 
 
     while queue:
         row, col = queue.pop(0)
@@ -47,11 +47,7 @@ def find_shortest_path(graph, start, end):
                 queue.append((row, col))
                 visited[(row, col)] = current
     
-    # At this point, either the current node is the goal node
-    # or the queue is empty and the goal was not found
-
     if current == end:
-        # Backtrack through the parent nodes to find the shortest path
         path = []
         while visited[current] is not None:
             current = visited[current]
@@ -107,4 +103,37 @@ def part_1():
     shortest_path = find_shortest_path(raw_graph, start, end)
     print(f"Part 1 --- {shortest_path}")
 
+def part_2():
+    elevation = "abcdefghijklmnopqrstuvwxyz"
+    starting_points = []
+    lines = get_lines(False)
+    raw_graph = []
+    end = (0,0)
+
+    for i, line in enumerate(lines):
+        graph_row = []
+        for j, char in  enumerate(line):
+            if char == "S":
+                start = (i, j)
+                starting_points.append((i, j))
+                graph_row.append(elevation.index("a"))
+            elif char == "E":
+                end = (i, j)
+                graph_row.append(elevation.index("z"))
+            else:
+                if(char == "a"):
+                    starting_points.append((i, j))
+                graph_row.append(elevation.index(char))
+        raw_graph.append(graph_row)
+
+    path_lengths = []
+
+    for start in starting_points:
+        shortest_path = find_shortest_path(raw_graph, start, end)
+        if(shortest_path is not None):
+            path_lengths.append(shortest_path)
+    
+    print(f"Part 2 --- {min(path_lengths)}")
+
 part_1()
+part_2()
