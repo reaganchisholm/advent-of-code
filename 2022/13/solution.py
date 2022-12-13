@@ -24,13 +24,13 @@ test_input = """[1,1,3,1,1]
 [1,[2,[3,[4,[5,6,7]]]],8,9]
 [1,[2,[3,[4,[5,6,0]]]],8,9]"""
 
-def get_lines(use_test_data):
+def get_lines(use_test_data, split_on = "\n\n"):
     if(use_test_data):
-        lines = test_input.split("\n\n")
+        lines = test_input.split(split_on)
         return lines
     else :
         with open('input.txt') as f:
-            lines = f.read().split("\n\n")
+            lines = f.read().split(split_on)
             return lines
 
 def check_order(left, right):
@@ -77,4 +77,13 @@ def part_1():
     
     print(f"Part 1 --- Sum: {total}")
 
+def part_2():
+    lines = get_lines(True, "\n")
+    # filter out the empty lines
+    lines = list(filter(lambda x: x != "", lines))
+    print(lines)
+    orders = {}
+
+
 part_1()
+part_2()
