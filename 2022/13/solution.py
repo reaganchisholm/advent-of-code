@@ -1,3 +1,4 @@
+from functools import cmp_to_key, reduce
 import ast
 
 test_input = """[1,1,3,1,1]
@@ -68,7 +69,7 @@ def part_1():
         left = ast.literal_eval(left_str)
         right = ast.literal_eval(right_str)
         order = check_order(left, right)
-        orders[i + 1] = order
+        orders[i + 1] = order # not zero indexed
 
     total = 0
     for o in orders:
@@ -77,13 +78,32 @@ def part_1():
     
     print(f"Part 1 --- Sum: {total}")
 
+def compare(item1, item2):
+    order = check_order(item1, item2)
+    if order == True:
+        return 1
+    elif order == False:
+        return -1
+    else:
+        return 0
+
 def part_2():
-    lines = get_lines(True, "\n")
-    # filter out the empty lines
-    lines = list(filter(lambda x: x != "", lines))
-    print(lines)
-    orders = {}
+    lines = get_lines(False, "\n")
+    divider_packets = [[[2]], [[6]]]
+    indexes = []
 
+    lines = list(filter(lambda x: x != "", lines)) # remove empty lines
+    lines = list(map(lambda x: ast.literal_eval(x), lines)) # convert to list
+    for d in divider_packets: lines.append(d) # add divider packets
+    lines.sort(key=cmp_to_key(compare), reverse=True) # sort using our compare
 
+    # find indexes of divider packets
+    for i, l in enumerate(lines):
+        if(l in divider_packets):
+            indexes.append(i + 1) # not zero indexed
+    
+    result = reduce((lambda x, y: x * y), indexes)
+    print(f"Part 2 --- Result: {result}")
+    
 part_1()
 part_2()
