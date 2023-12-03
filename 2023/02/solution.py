@@ -13,7 +13,6 @@ def get_lines(use_test_data):
             lines = f.read().splitlines()
             return lines
 
-
 def part_1():
     lines = get_lines(False)
     possible_games = [] 
@@ -45,7 +44,7 @@ def part_1():
         current_game += 1
     
     answer = sum(possible_games)
-    print(f"Part 1 --- {answer}");
+    print(f"Part 1 --- {answer}")
 
 def part_2():
     lines = get_lines(False)
@@ -75,7 +74,7 @@ def part_2():
         game_powers.append(power)
     
     answer = sum(game_powers)
-    print(f"Part 2 --- {answer}");
+    print(f"Part 2 --- {answer}")
 
 part_1()
 part_2()
