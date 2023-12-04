@@ -28,10 +28,7 @@ def part_1():
 
 def part_2():
     lines = get_lines(False)
-    scratch_card_count = {}
-
-    for i in range(len(lines)):
-        scratch_card_count[i + 1] = 1
+    scratch_card_count = {i + 1: 1 for i in range(len(lines))}
 
     for i, l in enumerate(lines):
         cards_to_check = scratch_card_count[i + 1]
