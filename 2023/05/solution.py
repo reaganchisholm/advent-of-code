@@ -42,17 +42,35 @@ def get_lines(use_test_data):
             return lines
 
 def part_1():
-    lines = get_lines(True)
-    seeds = lines[0].split(":")[1].strip().split()
+    lines = get_lines(False)
+    seeds = [int(s) for s in lines[0].split(":")[1].strip().split()]
     lines = lines[1:] # Remove seeds line
     maps = []
+    processed_maps = []
+    locations = []
 
     for l in lines:
         maps.append(l.split(":")[1].strip().splitlines())
     
-    for s in seeds:
-        print(int(s))
+    for m in maps:
+        map_group = []
+        for l in m:
+            dest, src, rgn = [int(n) for n in l.split()]
+            start = src
+            end = src + (rgn - 1)
+            diff = abs(dest - src)
+            map_group.append([start, end, dest, diff])
+        processed_maps.append(map_group)
 
-    print(f"Part 1 --- {1}")
+    for s in seeds:
+        for m in processed_maps:
+            for g in m:
+                if(s >= g[0] and s <= g[1]):
+                    diff = s - g[0]
+                    s = g[2] + diff
+                    break
+        locations.append(s)
+
+    print(f"Part 1 --- {min(locations)}")
 
 part_1()
