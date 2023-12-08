@@ -1,3 +1,5 @@
+import math
+
 # test_input = """RL
 
 # AAA = (BBB, CCC)
@@ -63,9 +65,9 @@ def part_2():
     inst, lines = get_lines(False)
     nodes = {}
     inst_i = 0
-    steps = 0;
     inst = list(inst)
     starting_nodes = []
+    steps_lcm = []
 
     for l in lines:
         a, b = l.split(" = ")
@@ -76,31 +78,31 @@ def part_2():
 
         nodes[a] = b
 
-    while True:
+    for n in starting_nodes:
         if inst_i >= len(inst):
             inst_i = 0
 
-        side = inst[inst_i]
-        next_nodes = []
+        steps = 0
+        current_node = n
 
-        for n in starting_nodes:
+        while current_node[-1] != "Z":
+            if inst_i >= len(inst):
+                inst_i = 0
+
+            side = inst[inst_i]
+
             if side == "L":
-                next_n = nodes[n][0]
+                current_node = nodes[current_node][0]
             elif side == "R":
-                next_n = nodes[n][1]
+                current_node = nodes[current_node][1]
 
-            next_nodes.append(next_n)
+            inst_i += 1
+            steps += 1
 
-        starting_nodes = next_nodes
-        inst_i += 1
-        steps += 1
-
-        print(f"Steps: {steps} --- Nodes: {starting_nodes}\r", end="", flush=True)
-
-        if all(x[-1] == 'Z' for x in starting_nodes):
-            break            
+        steps_lcm.append(steps)
     
-    print(f"Part 2 --- {steps}")
+    # TIL: Unpacking operator, similar to spread operator in JS, ** is for dictionaries
+    print(f"Part 2 --- {math.lcm(*steps_lcm)}") 
 
 part_1()
 part_2()
