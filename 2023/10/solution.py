@@ -1,14 +1,39 @@
-test_input="""-L|F7
-7S-7|
-L|7||
--L-J|
-L|-JF"""
+# test_input="""-L|F7
+# 7S-7|
+# L|7||
+# -L-J|
+# L|-JF"""
 
 # test_input="""..F7.
 # .FJ|.
 # SJ.L7
 # |F--J
 # LJ..."""
+
+# test_input="""...........
+# .S-------7.
+# .|F-----7|.
+# .||.....||.
+# .||.....||.
+# .|L-7.F-J|.
+# .|..|.|..|.
+# .L--J.L--J.
+# ..........."""
+
+test_input=""".F----7F7F7F7F-7....
+.|F--7||||||||FJ....
+.||.FJ||||||||L7....
+FJL7L7LJLJ||LJ.L-7..
+L--J.L7...LJS7F-7L7.
+....F-J..F7FJ|L7L7L7
+....L7.F7||L7|.L7L7|
+.....|FJLJ|FJ|F7|.LJ
+....FJL-7.||.||||...
+....L---J.LJ.LJLJ..."""
+
+"""
+Needed to look at solutions for this one, will have to come back to it to understand better
+"""
 
 def get_lines(use_test_data):
     if(use_test_data):
@@ -20,53 +45,116 @@ def get_lines(use_test_data):
             return lines
 
 def part_1():
-    lines = get_lines(True)
-    grid = [list(row) for row in lines]
-    start = find_start(grid)
-    answer = traverse_loop(grid, start)
-    print(f"Part 1 --- {answer}")
+    grid = get_lines(False)
+    width, height = len(grid[0]), len(grid)
+    
+    def get_adjacent(x, y, tile):
+        directions = []
+        if tile in '-J7S':
+            directions.append((x, y - 1))
+        if tile in '-FLS':
+            directions.append((x, y + 1))
+        if tile in '|F7S':
+            directions.append((x + 1, y))
+        if tile in '|LJS':
+            directions.append((x - 1, y))
+        return directions
 
-def find_start(grid):
-    for i, row in enumerate(grid):
-        for j, cell in enumerate(row):
-            if cell == 'S':
-                return i, j
-    return None
+    graph, visited, queue = {}, set(), set()
+    for x in range(height):
+        for y in range(width):
+            tile = grid[x][y]
+            graph[(x, y)] = get_adjacent(x, y, tile)
+            if tile == 'S':
+                visited.add((x, y))
+                queue.add((x, y))
 
-def get_directions(cell):
-    directions = {
-        '|': [('N', 'S'), ('S', 'N')],
-        '-': [('E', 'W'), ('W', 'E')],
-        'L': [('N', 'E'), ('E', 'N')],
-        'J': [('N', 'W'), ('W', 'N')],
-        '7': [('S', 'W'), ('W', 'S')],
-        'F': [('S', 'E'), ('E', 'S')],
-        'S': [('N', 'S'), ('S', 'N'), ('E', 'W'), ('W', 'E')]
-    }
-    return directions.get(cell, [])
-
-def traverse_loop(grid, start):
-    max_distance = 0
-    visited = set()
-    queue = [(start, 0, None)]  # (position, distance, from_direction)
-
+    steps = -1
     while queue:
-        (x, y), distance, from_direction = queue.pop(0)
-        if (x, y) in visited:
-            continue
-        visited.add((x, y))
-        max_distance = max(max_distance, distance)
+        next_queue = set()
+        for x1, y1 in queue:
+            for x2, y2 in graph[(x1, y1)]:
+                if (x2, y2) not in visited and (x1, y1) in graph.get((x2, y2), []):
+                    next_queue.add((x2, y2))
+                    visited.add((x2, y2))
+        queue = next_queue
+        steps += 1
 
-        for to_dir, from_dir in get_directions(grid[x][y]):
-            if from_direction is None or from_dir != from_direction:
-                next_x, next_y = x, y
-                if to_dir == 'N': next_x -= 1
-                if to_dir == 'S': next_x += 1
-                if to_dir == 'E': next_y += 1
-                if to_dir == 'W': next_y -= 1
-                if 0 <= next_x < len(grid) and 0 <= next_y < len(grid[0]) and grid[next_x][next_y] != '.':
-                    queue.append(((next_x, next_y), distance + 1, to_dir))
+    print(f"Part 1 --- {steps}")
 
-    return max_distance
+def part_2():
+    def build_graph(grid):
+        graph = {}
+        start = None
+        for x, line in enumerate(grid):
+            for y, tile in enumerate(line):
+                adjacent = get_adjacent_tiles(x, y, tile)
+                if tile == 'S':
+                    start = (x, y)
+                graph[(x, y)] = adjacent
+        return graph, start
+
+    def get_adjacent_tiles(x, y, tile):
+        adjacent = []
+        if tile in '-J7S':
+            adjacent.append((x, y - 1))
+        if tile in '-FLS':
+            adjacent.append((x, y + 1))
+        if tile in '|F7S':
+            adjacent.append((x + 1, y))
+        if tile in '|LJS':
+            adjacent.append((x - 1, y))
+        return adjacent
+
+    def traverse_graph(graph, start):
+        pipes = set()
+        tile_q = {start}
+        while tile_q:
+            nxt = set()
+            for x1, y1 in tile_q:
+                for x2, y2 in graph[(x1, y1)]:
+                    if (x1, y1) not in graph.get((x2, y2), []):
+                        continue
+                    pipe = (*sorted((x1, x2)), *sorted((y1, y2)))
+                    if pipe not in pipes:
+                        pipes.add(pipe)
+                        nxt.add((x2, y2))
+            tile_q = nxt
+        return pipes
+
+    def calculate_corners(grid, pipes):
+        m, n = len(grid), len(grid[0])
+        visited = set()
+        corner_q = [(0, 0)]
+
+        while corner_q:
+            x, y = corner_q.pop()
+            requirements = (x > 0, y < n, x < m, y > 0)
+            adjacent = ((x - 1, y), (x, y + 1), (x + 1, y), (x, y - 1))
+            tile_pairs = ((x - 1, x - 1, y - 1, y),
+                          (x - 1, x, y, y),
+                          (x, x, y - 1, y),
+                          (x - 1, x, y - 1, y - 1))
+            for req, corner, tile_pair in zip(requirements, adjacent, tile_pairs):
+                if req and corner not in visited and tile_pair not in pipes:
+                    visited.add(corner)
+                    corner_q.append(corner)
+
+        total = m * n - len(pipes)
+        for i in range(m):
+            for j in range(n):
+                corners = ((i, j), (i + 1, j), (i, j + 1), (i + 1, j + 1))
+                if all(c in visited for c in corners):
+                    total -= 1
+
+        return total
+
+    grid = get_lines(False)
+    graph, start = build_graph(grid)
+    pipes = traverse_graph(graph, start)
+    total = calculate_corners(grid, pipes)
+    
+    print(f"Part 2 --- {total}")
 
 part_1()
+part_2()
