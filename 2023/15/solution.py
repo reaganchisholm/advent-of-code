@@ -12,46 +12,32 @@ def get_lines(use_test_data):
             lines = f.read().split(",")
             return lines
 
-def hash_algo(s):
+def hash(s):
     val = 0
     for c in s:
-        val += ord(c)
+        val += ord(c) # ascii value
         val = (val * 17) % 256
     return val
 
 def part_1():
     steps = get_lines(False)
-    totals = [hash_algo(s) for s in steps]
+    totals = [hash(s) for s in steps]
     print(f"Part 1 --- {sum(totals)}")
 
 def part_2():
     steps = get_lines(False)
-    boxes = {}
-
-    for i in range(256):
-        boxes[i] = {}
+    boxes = {i: {} for i in range(256)}
 
     for s in steps:
         label, sign, fl = re.match(r'(\w+)([=-])(\d*)?', s).groups()
-        box = boxes[hash_algo(label)]
+        box = boxes[hash(label)]
         
         if sign == '-' :
-            if label in box:
-                del box[label]
+            if label in box: del box[label]
         elif sign == '=' :
             box[label] = int(fl)
-        
-        # print(f"----- Step: {s} -----")
-        # for b in list(boxes):
-        #     if len(boxes[b]) != 0:
-        #         print(f"Box {b}: {boxes[b]}")
 
-    totals = []
-    for b in boxes:
-        for i, l in enumerate(boxes[b]):
-            total = (b + 1) * (i + 1) * boxes[b][l]
-            totals.append(total)
-    
+    totals = [(b + 1) * (i + 1) * boxes[b][l] for b in boxes for i, l in enumerate(boxes[b])]
     print(f"Part 2 --- {sum(totals)}")
 
 part_1()
