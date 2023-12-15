@@ -73,7 +73,7 @@ def part_1():
     print(f"Part 1 --- {total}")
 
 def part_2():
-    patterns = get_lines(True);
+    patterns = get_lines(False);
     h_mirrors = []
     v_mirrors = []
 
@@ -95,7 +95,7 @@ def part_2():
                         break
                     offset += 1
                     diff_amount += diff
-                if is_mirror and diff_amount <= 1:
+                if is_mirror and diff_amount == 1:
                     h_mirrors.append(i+1)
                     found_mirror = True
                     break
@@ -116,7 +116,7 @@ def part_2():
                         break
                     offset += 1
                     diff_amount += diff
-                if is_mirror and diff_amount <= 1:
+                if is_mirror and diff_amount == 1:
                     v_mirrors.append(i+1)
                     break
     
