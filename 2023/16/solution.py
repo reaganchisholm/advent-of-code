@@ -1,5 +1,4 @@
 import os
-import time
 
 test_input = r""".|...\....
 |.-.\.....
@@ -12,19 +11,15 @@ test_input = r""".|...\....
 .|....-|.\
 ..//.|...."""
 
-
 def get_lines(use_test_data):
     if(use_test_data):
-        lines = [list(l) for l in test_input.splitlines()]
-        return lines
+        return [list(l) for l in test_input.splitlines()]
     else :
         with open('input.txt') as f:
-            lines = f.read().splitlines()
-            return lines
+            return f.read().splitlines()
 
 def debug_grid(grid, et):
     os.system('clear')
-
     for y, row in enumerate(grid):
         for x, char in enumerate(row):
             if (y, x) in et:
@@ -76,40 +71,38 @@ def update_pos(pos, dir):
 def part_1():
     grid = get_lines(False)
     et = {}
-
     handle_beam(grid, (0, 0), 'R', et)
-
     print(f"Part 1 --- {len(et)}")
 
 def part_2():
     grid = get_lines(False)
-    energized_count = []
+    totals = []
 
-    # top row
+    # top side
     for i in range(len(grid)):
         et = {}
         handle_beam(grid, (0, i), 'D', et)
-        energized_count.append(len(et))
+        totals.append(len(et))
     
     # bottom side
     for i in range(len(grid)):
         et = {}
         handle_beam(grid, (len(grid), i), 'U', et)
-        energized_count.append(len(et))
+        totals.append(len(et))
     
-    # left row
+    # left side
     for i in range(len(grid[0])):
         et = {}
         handle_beam(grid, (i, 0), 'R', et)
-        energized_count.append(len(et))
+        totals.append(len(et))
 
     # right side
     for i in range(len(grid[0])):
         et = {}
         handle_beam(grid, (len(grid), 0), 'L', et)
-        energized_count.append(len(et))
+        totals.append(len(et))
     
-    print(f"Part 2 --- {max(energized_count)}")
+    print(f"Part 2 --- {max(totals)}")
 
 part_1()
 part_2()
