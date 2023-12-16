@@ -81,4 +81,35 @@ def part_1():
 
     print(f"Part 1 --- {len(et)}")
 
+def part_2():
+    grid = get_lines(False)
+    energized_count = []
+
+    # top row
+    for i in range(len(grid)):
+        et = {}
+        handle_beam(grid, (0, i), 'D', et)
+        energized_count.append(len(et))
+    
+    # bottom side
+    for i in range(len(grid)):
+        et = {}
+        handle_beam(grid, (len(grid), i), 'U', et)
+        energized_count.append(len(et))
+    
+    # left row
+    for i in range(len(grid[0])):
+        et = {}
+        handle_beam(grid, (i, 0), 'R', et)
+        energized_count.append(len(et))
+
+    # right side
+    for i in range(len(grid[0])):
+        et = {}
+        handle_beam(grid, (len(grid), 0), 'L', et)
+        energized_count.append(len(et))
+    
+    print(f"Part 2 --- {max(energized_count)}")
+
 part_1()
+part_2()
