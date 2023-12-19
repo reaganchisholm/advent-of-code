@@ -1,4 +1,9 @@
 import re
+from functools import reduce
+
+"""
+Had to look at solutions for p2, me brain no worky
+"""
 
 test_input="""px{a<2006:qkq,m>2090:A,rfg}
 pv{a>1716:R,A}
@@ -31,7 +36,6 @@ def prep_data(workflows, parts):
     wf = {}
     p = []
 
-    # setup workflows
     for w in workflows:
         key, other = w.split('{')
         other = other.split(',')
@@ -40,7 +44,6 @@ def prep_data(workflows, parts):
             inst.append(o.replace('}', ''))
         wf[key] = inst
     
-    # setup parts
     for part in parts:
         parts = part.replace('}', '').replace('{', '').split(',')
         values = {}
@@ -51,9 +54,11 @@ def prep_data(workflows, parts):
     
     return wf, p
 
-def workflow(wf, key, p):
+def workflow(wf, key, p, hit):
     if key in ['R', 'A']:
         return key == 'A'
+    else :
+        hit.add(key)
 
     for inst in wf[key]:
         if '>' in inst or '<' in inst:
@@ -61,26 +66,68 @@ def workflow(wf, key, p):
 
             if (comp == '<' and int(p[k]) < int(num)) \
                 or (comp == '>' and int(p[k]) > int(num)):
-                    return workflow(wf, result, p)
+                    return workflow(wf, result, p, hit)
             else:
                 continue
         else:
-            return workflow(wf, inst, p)
+            return workflow(wf, inst, p, hit)
 
-    return False
+    return hit 
 
 def part_1():
     workflows, parts = get_lines(False)
     wf, p = prep_data(workflows, parts)
     accepted = []
+    hit = set()
 
     for part in p:
-        if workflow(wf, 'in', part):
+        if workflow(wf, 'in', part, hit):
             accepted.append(part)
 
     total = sum(int(v) for a in accepted for k, v in a.items())
     print(f"Part 1 --- {total}")
-                
 
+
+def part_2():
+    wf_lines, parts = get_lines(False)
+    workflows, _ = prep_data(wf_lines, parts)
+    part = {"x": (1, 4000), "m": (1, 4000), "a": (1, 4000), "s": (1, 4000)}
+    parts = []
+
+    queue = [("in", part)]
+    while len(queue) > 0:
+        wf, part = queue.pop()
+        for rule in workflows[wf]:
+            if ":" in rule:
+                key, comp, num, result = re.findall(r"(\w)([><])(\d+):(\w+)", rule)[0]
+                num = int(num)
+                cond_part = part.copy()
+                
+                if comp == '<':
+                    cond_part[key] = (cond_part[key][0], num - 1)
+                    part[key] = (int(num), part[key][1])
+                elif comp == '>':
+                    cond_part[key] = (int(num) + 1, cond_part[key][1])
+                    part[key] = (part[key][0], int(num))
+
+                if result in ["A", "R"]:
+                    if result == "A":
+                        parts.append(cond_part.copy())
+                else:
+                    queue.append((result, cond_part.copy()))
+            else:
+                if rule in ["A", "R"]:
+                    if rule == "A":
+                        parts.append(part.copy())
+                else:
+                    queue.append((rule, part.copy()))
+
+    all_combinations = sum(
+        reduce(lambda acc, v: acc * (v[1] - v[0] + 1), part.values(), 1) 
+        for part in parts
+    )
+
+    print(f"Part 2 --- {all_combinations}")
 
 part_1()
+part_2()
