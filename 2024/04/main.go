@@ -50,7 +50,41 @@ func part1() {
 }
 
 func part2() {
-	// println("Part 2 --------- ", 0)
+	// 	data := `MMMSXXMASM
+	// MSAMXMSMSA
+	// AMXSXMAAMM
+	// MSAMASMSMX
+	// XMASAMXAMM
+	// XXAMMXXAMA
+	// SMSMSASXSS
+	// SAXAMASAAA
+	// MAMMMXMMMM
+	// MXMXAXMASX`
+	dataBytes, err := os.ReadFile("input.txt")
+	if err != nil {
+		fmt.Println("Error reading file:", err)
+		return
+	}
+
+	data := string(dataBytes)
+	lines := strings.Fields(strings.TrimSpace(data))
+
+	grid := make([][]rune, len(lines))
+	for i, line := range lines {
+		grid[i] = []rune(line)
+	}
+
+	total := 0
+	for h, row := range grid {
+		for j, cell := range row {
+			letter := string(cell)
+			if letter == "A" {
+				total = total + checkTwo(h, j, grid)
+			}
+		}
+	}
+
+	println("Part 2 --------- ", total)
 }
 
 func check(x int, y int, grid [][]rune) int {
@@ -172,4 +206,25 @@ func check(x int, y int, grid [][]rune) int {
 	}
 
 	return amountFound
+}
+
+func checkTwo(x int, y int, grid [][]rune) int {
+	// Bounds check
+	if x-1 < 0 || x+1 >= len(grid) || y-1 < 0 || y+1 >= len(grid[0]) {
+		return 0
+	}
+
+	topL := grid[x-1][y-1]
+	topR := grid[x-1][y+1]
+	botL := grid[x+1][y-1]
+	botR := grid[x+1][y+1]
+
+	diagOne := string(topL) + string(grid[x][y]) + string(botR)
+	diagTwo := string(topR) + string(grid[x][y]) + string(botL)
+
+	if (diagOne == "MAS" || diagOne == "SAM") && (diagTwo == "MAS" || diagTwo == "SAM") {
+		return 1
+	} else {
+		return 0
+	}
 }
