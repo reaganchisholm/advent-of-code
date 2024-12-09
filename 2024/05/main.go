@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -87,33 +88,33 @@ func part1() {
 
 func part2() {
 	data := `47|53
-	97|13
-	97|61
-	97|47
-	75|29
-	61|13
-	75|53
-	29|13
-	97|29
-	53|29
-	61|53
-	97|53
-	61|29
-	47|13
-	75|47
-	97|75
-	47|61
-	75|61
-	47|29
-	75|13
-	53|13
+97|13
+97|61
+97|47
+75|29
+61|13
+75|53
+29|13
+97|29
+53|29
+61|53
+97|53
+61|29
+47|13
+75|47
+97|75
+47|61
+75|61
+47|29
+75|13
+53|13
 
-	// 75,47,61,53,29
-	// 97,61,53,29,13
-	// 75,29,13
-	// 75,97,47,61,53
-	// 61,13,29
-	// 97,13,75,29,47`
+75,47,61,53,29
+97,61,53,29,13
+75,29,13
+75,97,47,61,53
+61,13,29
+97,13,75,29,47`
 
 	// dataBytes, err := os.ReadFile("input.txt")
 	// if err != nil {
@@ -150,34 +151,49 @@ func part2() {
 	// Now we test the data
 	for _, data := range dataArr {
 		if isValid(instructions, data) == false {
-			fixedLine := fixLine(instructions, data)
-			middleNum := fixedLine[len(fixedLine)/2]
-			total = total + middleNum
+			sorting(instructions, data)
+			// middleNum := fixedLine[len(fixedLine)/2]
+			// total = total + middleNum
+		} else {
+			// log.Print("Valid: ", data)
 		}
 	}
 
 	println("Part 2 --------- ", total)
 }
 
+func sorting(instructions map[int][]int, data []int) {
+	copyOfData := make([]int, len(data))
+	copy(copyOfData, data)
+
+	// Swap numbers until we find a valid option
+	for i := 0; i < len(data)-1; i++ {
+		if Contains(instructions[data[i]], data[i+1]) == false {
+			// Swap the numbers
+			copyOfData[i], copyOfData[i+1] = copyOfData[i+1], copyOfData[i]
+
+			// Check if it's valid
+			if isValid(instructions, copyOfData) {
+				break
+			}
+		}
+	}
+
+	log.Print("Fixed: ", copyOfData)
+}
+
 func isValid(instructions map[int][]int, data []int) bool {
 	isValid := true
 
 	for i := 0; i < len(data)-1; i++ {
-		if Contains(instructions[data[i]], data[i+1]) == false {
+		log.Print(instructions[data[i]])
+		if Contains(instructions[data[i]], data[i+1]) == false || len(instructions[data[i]]) == 0 {
 			isValid = false
 			break
 		}
 	}
 
 	return isValid
-}
-
-func fixLine(instructions map[int][]int, data []int) []int {
-	fixedLine := make([]int, 0)
-	firstNum := data[0]
-	fixedLine = append(fixedLine, firstNum)
-
-	return fixedLine
 }
 
 func Contains[T comparable](s []T, e T) bool {
